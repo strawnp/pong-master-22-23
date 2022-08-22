@@ -71,7 +71,7 @@ function love.keypressed(key)
       ballY = VIRTUAL_HEIGHT / 2 - 2
 
       ballDX = math.random(2) == 1 and 100 or -100
-      ballDy = math.random(-50, 50) * 1.5
+      ballDY = math.random(-50, 50) * 1.5
     end
   end
 end

@@ -11,12 +11,12 @@ PADDLE_SPEED = 200
 function love.load()
   love.graphics.setDefaultFilter('nearest', 'nearest')
 
+  -- seed our random-number generator
+  math.randomseed(os.time())
+
   -- create small font for text
   smallFont = love.graphics.newFont('font.ttf', 8)
   love.graphics.setFont(smallFont)
-
-  -- create large font for score
-  scoreFont = love.graphics.newFont('font.ttf', 32)
 
   push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
@@ -24,11 +24,16 @@ function love.load()
         vsync = true
     })
 
-  player1Score = 0
-  player2Score = 0
-
   player1Y = 30
   player2Y = VIRTUAL_HEIGHT - 50
+
+  ballX = VIRTUAL_WIDTH / 2 - 2
+  ballY = VIRTUAL_HEIGHT / 2 - 2
+
+  ballDX = math.random(2) == 1 and 100 or -100
+  ballDY = math.random(-50, 50)
+
+  gameState = 'start'
 end
 
 function love.update(dt)
@@ -45,11 +50,29 @@ function love.update(dt)
   elseif love.keyboard.isDown('down') then
     player2Y = player2Y + PADDLE_SPEED * dt
   end
+
+  -- ball movement in play state
+  if gameState == 'play' then
+    ballX = ballX + ballDX * dt
+    ballY = ballY + ballDY * dt
+  end
 end
 
 function love.keypressed(key)
   if key == 'escape' then
     love.event.quit()
+  elseif key == 'enter' or key == 'return' then
+    if gameState == 'start' then
+      gameState = 'play'
+    else
+      gameState = 'start'
+
+      ballX = VIRTUAL_WIDTH / 2 - 2
+      ballY = VIRTUAL_HEIGHT / 2 - 2
+
+      ballDX = math.random(2) == 1 and 100 or -100
+      ballDy = math.random(-50, 50) * 1.5
+    end
   end
 end
 
@@ -60,12 +83,12 @@ function love.draw()
 
   -- draw welcome text
   love.graphics.setFont(smallFont)
-  love.graphics.printf('Hello Pong!', 0, 20, VIRTUAL_WIDTH, 'center')
 
-  -- draw scores
-  love.graphics.setFont(scoreFont)
-  love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
-  love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
+  if gameState == 'start' then
+    love.graphics.printf('Hello Start State!', 0, 20, VIRTUAL_WIDTH, 'center')
+  else
+    love.graphics.printf('Hello Play State!', 0, 20, VIRTUAL_WIDTH, 'center')
+  end
 
     -- left paddle
     love.graphics.rectangle('fill', 10, player1Y, 5, 20)
@@ -74,7 +97,7 @@ function love.draw()
     love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, player2Y, 5, 20)
 
     -- ball
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+    love.graphics.rectangle('fill', ballX, ballY, 4, 4)
 
     push:apply('end')
 end

@@ -1,4 +1,10 @@
+-- include libraries
 push = require 'push'
+Class = require 'class'
+
+-- including object classes
+require 'Paddle'
+require 'Ball'
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720

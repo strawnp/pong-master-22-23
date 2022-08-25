@@ -27,6 +27,9 @@ function love.load()
   -- create small font for text
   smallFont = love.graphics.newFont('font.ttf', 8)
 
+  -- create medium font for other text
+  largeFont = love.graphics.newFont('font.ttf', 16)
+
   -- create larger font for scores
   scoreFont = love.graphics.newFont('font.ttf', 32)
 
@@ -97,23 +100,32 @@ function love.update(dt)
       ball.y = VIRTUAL_HEIGHT - 4
       ball.dy = - ball.dy
     end
-  end
-
   -- detect collision for a score
   if ball.x < 0 then
     servingPlayer = 1
     player2Score = player2Score + 1
-    ball:reset()
-    gameState = 'serve'
+
+    if player2Score == 7 then
+      winningPlayer = 2
+      gameState = 'done'
+    else
+      ball:reset()
+      gameState = 'serve'
+    end
   end
 
   if ball.x > VIRTUAL_WIDTH then
     servingPlayer = 2
     player1Score = player1Score + 1
-    ball:reset()
-    gameState = 'serve'
+    if player1Score == 7 then
+      winningPlayer = 1
+      gameState = 'done'
+    else
+      ball:reset()
+      gameState = 'serve'
+    end
   end
-
+end  
   -- player 1 movement
   if love.keyboard.isDown('w') then
     player1.dy = -PADDLE_SPEED
@@ -149,6 +161,19 @@ function love.keypressed(key)
       gameState = 'serve'
     elseif gameState == 'serve' then
       gameState = 'play'
+    elseif gameState == 'done' then
+      gameState = 'serve'
+
+      ball:reset()
+
+      player1Score = 0
+      player2Score = 0
+
+      if winningPlayer == 1 then
+        servingPlayer = 2
+      else
+        servingPlayer = 1
+      end
     end
   end
 end
@@ -169,6 +194,11 @@ function love.draw()
     love.graphics.printf('Press Enter to serve!', 0, 20, VIRTUAL_WIDTH, 'center')
   elseif gameState == 'play' then
     -- do nothing
+  elseif gameState == 'done' then
+    love.graphics.setFont(largeFont)
+    love.graphics.printf('Player ' .. tostring(winningPlayer) .. ' wins!', 0, 10, VIRTUAL_WIDTH, 'center')
+    love.graphics.setFont(smallFont)
+    love.graphics.printf('Press Enter to restart!', 0, 30, VIRTUAL_WIDTH, 'center')
   end
 
   -- draw scores

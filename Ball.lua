@@ -6,9 +6,24 @@ function Ball:init(x, y, width, height)
   self.width = width
   self.height = height
 
+  self.dx = math.random(2) == 1 and math.random(-80, -100) or math.random(80, 100)
   self.dy = math.random(2) == 1 and -100 or 100
-  self.dx = math.random(-50, 50)
 end
+
+function Ball:collides(paddle)
+  -- testing for overlapping x coordinates
+  if self.x > paddle.x + paddle.width or paddle.x > self.x + self.width then
+    return false
+  end
+
+  -- testing for overlapping y coordinates
+  if self.y > paddle.y + paddle.height or paddle.y > self.y + self.height then
+    return false
+  end
+
+  return true
+end
+
 
 function Ball:reset()
   self.x = VIRTUAL_WIDTH / 2 - 2
@@ -25,4 +40,4 @@ end
 
 function Ball:render()
   love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
-end 
+end

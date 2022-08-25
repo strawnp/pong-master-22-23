@@ -42,6 +42,9 @@ function love.load()
   player1Score = 0
   player2Score = 0
 
+  -- set starting player
+  servingPlayer = 1
+
   -- initialize Paddle objects
   player1 = Paddle(10, 30, 5, 20)
   player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
@@ -54,7 +57,14 @@ function love.load()
 end
 
 function love.update(dt)
-  if gameState == 'play' then
+    if gameState == 'serve' then
+      ball.dy = math.random(-50, 50)
+      if servingPlayer == 1 then
+        ball.dx = math.random(140, 200)
+      else
+        ball.dx = -math.random(140, 200)
+      end
+    elseif gameState == 'play' then
     -- handle paddle collisions
     if ball:collides(player1) then
       ball.dx = -ball.dx * 1.03
@@ -94,14 +104,14 @@ function love.update(dt)
     servingPlayer = 1
     player2Score = player2Score + 1
     ball:reset()
-    gameState = 'start'
+    gameState = 'serve'
   end
 
   if ball.x > VIRTUAL_WIDTH then
     servingPlayer = 2
     player1Score = player1Score + 1
     ball:reset()
-    gameState = 'start'
+    gameState = 'serve'
   end
 
   -- player 1 movement
@@ -136,11 +146,9 @@ function love.keypressed(key)
     love.event.quit()
   elseif key == 'enter' or key == 'return' then
     if gameState == 'start' then
+      gameState = 'serve'
+    elseif gameState == 'serve' then
       gameState = 'play'
-    else
-      gameState = 'start'
-
-      ball:reset()
     end
   end
 end
@@ -154,15 +162,17 @@ function love.draw()
   love.graphics.setFont(smallFont)
 
   if gameState == 'start' then
-    love.graphics.printf('Hello Start State!', 0, 20, VIRTUAL_WIDTH, 'center')
-  else
-    love.graphics.printf('Hello Play State!', 0, 20, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Welcome to Pong!', 0, 10, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Press Enter to begin!', 0, 20, VIRTUAL_WIDTH, 'center')
+  elseif gameState == 'serve' then
+    love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!", 0, 10, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Press Enter to serve!', 0, 20, VIRTUAL_WIDTH, 'center')
+  elseif gameState == 'play' then
+    -- do nothing
   end
 
   -- draw scores
-  love.graphics.setFont(scoreFont)
-  love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
-  love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
+  displayScores()
 
   -- left paddle
   player1:render()
@@ -183,4 +193,10 @@ function displayFPS()
   love.graphics.setFont(smallFont)
   love.graphics.setColor(0, 255/255, 0, 255/255)
   love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
+end
+
+function displayScores()
+  love.graphics.setFont(scoreFont)
+  love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
+  love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 end

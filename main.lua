@@ -44,7 +44,7 @@ function love.load()
 
   push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
-        resizable = false,
+        resizable = true,
         vsync = true
     })
 
@@ -134,7 +134,7 @@ function love.update(dt)
 
   if ball.x > VIRTUAL_WIDTH then
     sounds['score']:play()
-    
+
     servingPlayer = 2
     player1Score = player1Score + 1
     if player1Score == 7 then
@@ -238,6 +238,10 @@ function love.draw()
 
   push:apply('end')
 end
+
+function love.resize(w, h)
+  push:resize(w, h)
+end 
 
 function displayFPS()
   love.graphics.setFont(smallFont)
